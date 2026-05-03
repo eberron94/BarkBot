@@ -1,6 +1,6 @@
 # 🤖 BarkBot (Cross-Posting Telegram Bot)
 
-A powerful Telegram bot designed to help you easily draft, schedule, and cross-post your content to multiple social media platforms simultaneously right from your Telegram app.
+A Telegram bot designed to help you easily draft, schedule, and cross-post your content to multiple social media platforms simultaneously right from your Telegram app.
 
 Currently supports cross-posting to **Telegram Channels**, **Bluesky**, and **Tumblr**, as well as generating downloadable **`.zip` archives** containing your media and text for manual posting to platforms without accessible APIs (like TikTok or Instagram Reels).
 
