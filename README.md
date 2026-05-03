@@ -104,8 +104,7 @@ If you want the bot to run continuously in the background and restart automatica
 3. Start the bot: `pm2 start ecosystem.config.cjs`
 4. Save your PM2 process list so it remembers the bot: `pm2 save`
 
-*(Optional: Run `pm2 startup` to configure PM2 to automatically launch when your server boots!)*
-
+_(Optional: Run `pm2 startup` to configure PM2 to automatically launch when your server boots!)_
 
 ### Running with Docker
 
@@ -154,10 +153,12 @@ You can manage your bot's behavior and your queued posts at any time using the f
 The **Zip** destination is a special feature designed for platforms that either don't have open APIs (like Instagram or TikTok) or aren't natively supported by the bot yet.
 
 When you select **Zip** as a destination and post, the bot will generate and send you a `.zip` document directly in your chat. This archive contains:
+
 - All of your high-quality media files (photos, videos, etc.).
 - A `post.txt` file containing your perfectly formatted caption, alt-text descriptions, and tags.
 
 **How to use:**
+
 1. Select the **Zip** option in your post's preview menu.
 2. Click **🚀 Post to Selected**.
 3. Download the generated `.zip` file sent by the bot and extract the contents to your phone or computer.
@@ -175,7 +176,14 @@ All persistent state is saved locally in the `data/` directory:
 - `data/memory.json`
 - `data/queue.json`
 
-If you ever need to migrate your bot to a new server, simply copy the `.env` file and the `data/` folder to retain all your configurations and drafts.
+### Backing Up Your Data
+
+To safely back up your bot's state (including scheduled posts, tag presets, and memory), simply copy the `data/` folder and your `.env` file to a secure location.
+
+- **Standard/PM2:** It is recommended to stop the bot before copying the files to ensure no data is being written mid-backup (e.g., `pm2 stop ecosystem.config.cjs`).
+- **Docker:** Back up the mapped `data/` volume directory on your host machine.
+
+If you ever need to migrate your bot to a new server or restore a backup, simply place your saved `.env` file and `data/` folder back into the project root before starting the bot.
 
 ---
 
