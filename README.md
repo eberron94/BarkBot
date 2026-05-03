@@ -29,8 +29,8 @@ Currently supports cross-posting to **Telegram Channels**, **Bluesky**, and **Tu
 Clone the repository and install the dependencies:
 
 ```bash
-git clone https://github.com/yourusername/postbot.git
-cd postbot
+git clone https://github.com/yourusername/barkbot.git
+cd barkbot
 npm install
 ```
 
