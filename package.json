@@ -1,0 +1,21 @@
+{
+    "name": "barkbot",
+    "version": "1.0.0",
+    "description": "Cross-posting Telegram bot for Telegram, Tumblr, and Bluesky",
+    "type": "module",
+    "main": "src/bot.js",
+    "scripts": {
+        "dev": "nodemon -L --ignore presets.json --ignore memory.json src/bot.js",
+        "start": "node src/bot.js"
+    },
+    "dependencies": {
+        "@atproto/api": "latest",
+        "adm-zip": "^0.5.17",
+        "dotenv": "latest",
+        "telegraf": "latest",
+        "tumblr.js": "latest"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.14"
+    }
+}

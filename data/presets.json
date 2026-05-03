@@ -1,0 +1,21 @@
+{
+    "dice": [
+        "crafting",
+        "handmade",
+        "dice",
+        "dnd_dice",
+        "resin"
+    ],
+    "chainmail": [
+        "chainmail",
+        "chainmaille",
+        "jewelry",
+        "handmade"
+    ],
+    "crochet": [
+        "handmade",
+        "crafting",
+        "crochet",
+        "fiber_art"
+    ]
+}

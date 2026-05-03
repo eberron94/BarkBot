@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  postbot:
+    build: .
+    container_name: postbot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data
