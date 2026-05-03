@@ -6,7 +6,10 @@
     "main": "src/bot.js",
     "scripts": {
         "dev": "nodemon -L --ignore presets.json --ignore memory.json src/bot.js",
-        "start": "node src/bot.js"
+        "start": "node src/bot.js",
+        "setup": "node scripts/setup.js",
+        "check": "node scripts/check-connections.js",
+        "setup:pm2": "node scripts/setup-pm2.js"
     },
     "dependencies": {
         "@atproto/api": "latest",
