@@ -10,6 +10,7 @@ import { ChannelPost } from './posts/ChannelPost.js';
 import { Scheduler } from './core/Scheduler.js';
 import { ZipPost } from './posts/ZipPost.js';
 import { Publisher } from './core/Publisher.js';
+import { getVersion } from './util/util.js';
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
@@ -63,4 +64,5 @@ commands.registerCommands();
 commands.registerMessageListeners();
 
 // Start the bot
+console.log(`Starting BarkBot v${getVersion()}...`);
 commands.launch();

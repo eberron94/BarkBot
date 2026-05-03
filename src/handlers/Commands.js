@@ -1,6 +1,6 @@
 import { Markup } from 'telegraf';
 import fs from 'node:fs';
-import { escapeHtml, isAuthorized, getConfiguredPlatforms } from '../util/util.js';
+import { escapeHtml, isAuthorized, getConfiguredPlatforms, getVersion } from '../util/util.js';
 import { PostState } from '../struct/PostState.js';
 import { UI } from '../util/UI.js';
 
@@ -50,6 +50,7 @@ export class Commands {
                 `[HELP] User ${ctx.from?.username || ctx.from?.first_name} requested help.`,
             );
             const botName = process.env.BOT_NAME || 'PostBot';
+            const version = getVersion();
             const platforms = getConfiguredPlatforms();
             const activePlatforms = [
                 platforms.bsky && 'Bluesky',
@@ -59,7 +60,7 @@ export class Commands {
             ].filter(Boolean).join(', ') || 'None';
 
             const helpMessage =
-                `Welcome to ${botName}! I am ready to cross-post.\n\n` +
+                `Welcome to ${botName} v${version}! I am ready to cross-post.\n\n` +
                 `<b>How to use:</b>\n` +
                 `1. Send me a message with text and/or media.\n` +
                 `2. Use the preview menu to edit, add tags, and add alt text.\n` +
@@ -576,8 +577,11 @@ export class Commands {
                 platforms.zip && 'Zip',
             ].filter(Boolean).join(', ') || 'None';
 
+            const version = getVersion();
+
             const statusMessage =
                 `🤖 <b>Bot Status</b>\n\n` +
+                `🏷️ <b>Version:</b> v${version}\n` +
                 `⏱️ <b>Uptime:</b> ${uptimeStr}\n` +
                 `💾 <b>RAM Usage:</b> ${memUsageMb} MB\n` +
                 `💽 <b>Disk Usage (State):</b> ${diskUsageKb} KB\n` +

@@ -58,3 +58,18 @@ export const withRetry = async (fn, maxRetries = 3, delayMs = 5000) => {
         }
     }
 };
+
+/**
+ * Reads the package.json file to get the current bot version.
+ * @returns {string} The version string.
+ */
+export const  getVersion = () => {
+    try {
+        // We use '../../' because util.js is nested one directory deeper than bot.js
+        const packageJson = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url)));
+        return packageJson.version;
+    } catch (e) {
+        console.error('[ERROR] Failed to read version from package.json:', e);
+        return 'unknown';
+    }
+}
