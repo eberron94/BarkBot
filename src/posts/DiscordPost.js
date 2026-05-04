@@ -11,10 +11,10 @@ export class DiscordPost {
                 .map((w) => w.trim())
                 .filter(Boolean);
             for (const hook of webhooks) {
-                const parts = hook.split(':');
+                const parts = hook.split('|');
                 if (parts.length >= 2) {
                     const label = parts[0].trim();
-                    const url = parts.slice(1).join(':').trim();
+                    const url = parts.slice(1).join('|').trim();
                     this.webhookClients.set(label, new WebhookClient({ url }));
                 }
             }

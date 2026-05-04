@@ -269,17 +269,22 @@ async function checkDiscord() {
         return;
     }
 
-    const webhooks = webhooksStr.split(',').map((w) => w.trim()).filter(Boolean);
+    const webhooks = webhooksStr
+        .split(',')
+        .map((w) => w.trim())
+        .filter(Boolean);
 
     for (const hook of webhooks) {
-        const parts = hook.split(':');
+        const parts = hook.split('|');
         if (parts.length < 2) {
-            console.error(`${c.red}❌ FAILED: Invalid Discord Webhook format '${hook}'. Expected 'Label:URL'.${c.reset}`);
+            console.error(
+                `${c.red}❌ FAILED: Invalid Discord Webhook format '${hook}'. Expected 'Label|URL'.${c.reset}`,
+            );
             continue;
         }
-        
+
         const label = parts[0].trim();
-        const url = parts.slice(1).join(':').trim();
+        const url = parts.slice(1).join('|').trim();
 
         try {
             const response = await fetch(url);

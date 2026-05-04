@@ -35,7 +35,7 @@ export const getConfiguredPlatforms = () => {
             .map((w) => w.trim())
             .filter(Boolean)
             .map((hook) => {
-                const parts = hook.split(':');
+                const parts = hook.split('|');
                 return parts.length >= 2 ? parts[0].trim() : null;
             })
             .filter(Boolean);

@@ -433,7 +433,7 @@ async function main() {
     }
 
     console.log(`\n${c.cyan}--- Discord ---${c.reset}`);
-    console.log(`${c.cyan}You can configure multiple Discord webhooks. Format: Label:URL, Label:URL${c.reset}`);
+    console.log(`${c.cyan}You can configure multiple Discord webhooks. Format: Label|URL, Label|URL${c.reset}`);
     env.DISCORD_WEBHOOKS = await ask(
         'Enter your Discord Webhook(s) (Optional)',
         existingEnv.DISCORD_WEBHOOKS || existingEnv.DISCORD_WEBHOOK_URL,
@@ -441,14 +441,14 @@ async function main() {
     if (env.DISCORD_WEBHOOKS) {
         const webhooks = env.DISCORD_WEBHOOKS.split(',').map((w) => w.trim()).filter(Boolean);
         for (const hook of webhooks) {
-            const parts = hook.split(':');
+            const parts = hook.split('|');
             if (parts.length < 2) {
-                console.log(`${c.yellow}⚠️ Invalid format for '${hook}'. Expected 'Label:URL'.${c.reset}`);
+                console.log(`${c.yellow}⚠️ Invalid format for '${hook}'. Expected 'Label|URL'.${c.reset}`);
                 continue;
             }
             
             const label = parts[0].trim();
-            const url = parts.slice(1).join(':').trim(); // Ensure the "https://" part stays intact
+            const url = parts.slice(1).join('|').trim(); // Ensure the "https://" part stays intact
             
             console.log(`${c.cyan}⏳ Verifying Discord Webhook '${label}'...${c.reset}`);
             try {

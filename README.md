@@ -80,8 +80,8 @@ To post to Discord, you can configure one or more Webhooks.
 3. Click **Copy Webhook URL**.
 4. Repeat for any other channels you want.
 
-- `DISCORD_WEBHOOKS`: A comma-separated list of labels and webhook URLs, separated by a colon (`:`). For example:
-  `DISCORD_WEBHOOKS="General:https://discord.com/api/webhooks/...,Art:https://discord.com/api/webhooks/..."`
+- `DISCORD_WEBHOOKS`: A comma-separated list of labels and webhook URLs, separated by a pipe (`|`). For example:
+  `DISCORD_WEBHOOKS="General|https://discord.com/api/webhooks/...,Art|https://discord.com/api/webhooks/..."`
 - `DISCORD_USERNAME`: (Optional) Overrides the webhook's default username.
 - `DISCORD_AVATAR_URL`: (Optional) Overrides the webhook's default avatar with a URL to an image.
 
@@ -209,13 +209,18 @@ This bot is designed to be a personal tool. It will aggressively reject messages
 
 # 📝 Changelog
 
+## v1.1.1 - Configuration Fixes
+
+### 🛠️ Refactors & Improvements
+* **Discord Webhook Configuration:** Changed the separator for multiple Discord webhooks from a colon (`:`) to a pipe (`|`) in the `.env` file (e.g., `General|https://...`). This resolves parsing issues caused by the colons natively present in URLs.
+
 ## v1.1.0 - Discord Integration
 
 ### ✨ New Features
 * **Discord Webhook Integration:** 
   * You can now seamlessly cross-post content directly to Discord using Webhooks.
   * **Full Media & Accessibility Support:** Discord posts natively support multiple images and videos. Custom Alt-Text descriptions are automatically mapped to Discord's image embeds for screen readers.
-  * **Multi-Channel Support:** Configure as many Discord channels as you want by providing a comma-separated list of `Label:URL` pairs in your `.env` file (e.g., `General:https://...`).
+  * **Multi-Channel Support:** Configure as many Discord channels as you want by providing a comma-separated list of `Label|URL` pairs in your `.env` file (e.g., `General|https://...`).
   * **Custom Identities:** Optionally override the Webhook's profile picture (`DISCORD_AVATAR_URL`) and bot name (`DISCORD_USERNAME`) dynamically so your posts look like they are coming from a custom bot rather than the default webhook.
 * **Dynamic UI Generation:** 
   * The bot's UI dynamically reads your configured Discord webhooks to construct destination toggle buttons on the fly in both the Post Preview menu and the `/defaultdest` control panel.
