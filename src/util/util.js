@@ -29,6 +29,18 @@ export const parseScheduleTime = (input) => {
 };
 
 export const getConfiguredPlatforms = () => {
+    let discordWebhooks = [];
+    if (process.env.DISCORD_WEBHOOKS) {
+        discordWebhooks = process.env.DISCORD_WEBHOOKS.split(',')
+            .map((w) => w.trim())
+            .filter(Boolean)
+            .map((hook) => {
+                const parts = hook.split(':');
+                return parts.length >= 2 ? parts[0].trim() : null;
+            })
+            .filter(Boolean);
+    }
+
     return {
         bsky: !!(process.env.BLUESKY_IDENTIFIER && process.env.BLUESKY_PASSWORD),
         tumblr: !!(
@@ -40,6 +52,7 @@ export const getConfiguredPlatforms = () => {
         ),
         tg: !!process.env.TELEGRAM_CHANNEL_ID,
         zip: true,
+        discord: discordWebhooks,
     };
 };
 

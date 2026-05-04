@@ -258,6 +258,49 @@ async function checkTumblr() {
     }
 }
 
+async function checkDiscord() {
+    console.log(`\n${c.cyan}Checking Discord connection(s)...${c.reset}`);
+    const webhooksStr = process.env.DISCORD_WEBHOOKS;
+
+    if (!webhooksStr) {
+        console.log(
+            `${c.yellow}⚪️ SKIPPED: DISCORD_WEBHOOKS is not set.${c.reset}`,
+        );
+        return;
+    }
+
+    const webhooks = webhooksStr.split(',').map((w) => w.trim()).filter(Boolean);
+
+    for (const hook of webhooks) {
+        const parts = hook.split(':');
+        if (parts.length < 2) {
+            console.error(`${c.red}❌ FAILED: Invalid Discord Webhook format '${hook}'. Expected 'Label:URL'.${c.reset}`);
+            continue;
+        }
+        
+        const label = parts[0].trim();
+        const url = parts.slice(1).join(':').trim();
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (response.ok && data.id && data.token) {
+                console.log(
+                    `${c.green}✅ SUCCESS: Connected to Discord Webhook '${label}' (Channel: ${c.reset}${data.channel_id || 'Unknown'}${c.green})${c.reset}`,
+                );
+            } else {
+                console.error(
+                    `${c.red}❌ FAILED: Discord Webhook '${label}' error - ${c.reset}${data.message || 'Unknown error'}`,
+                );
+            }
+        } catch (err) {
+            console.error(
+                `${c.red}❌ FAILED: Could not connect to Discord Webhook '${label}'. Error: ${c.reset}${err.message}`,
+            );
+        }
+    }
+}
+
 async function main() {
     console.log(
         `${c.bold}${c.cyan}🤖 BarkBot Connection Status Check${c.reset}`,
@@ -268,6 +311,7 @@ async function main() {
     await checkTelegramChannel();
     await checkBluesky();
     await checkTumblr();
+    await checkDiscord();
     console.log(`${c.cyan}------------------------------------${c.reset}`);
     console.log(`${c.bold}${c.green}Check complete.${c.reset}`);
 }

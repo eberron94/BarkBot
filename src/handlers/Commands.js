@@ -57,6 +57,7 @@ export class Commands {
                 platforms.tumblr && 'Tumblr',
                 platforms.tg && 'Telegram',
                 platforms.zip && 'Zip',
+                ...(platforms.discord || []).map((label) => `Discord: ${label}`),
             ].filter(Boolean).join(', ') || 'None';
 
             const helpMessage =
@@ -75,7 +76,7 @@ export class Commands {
                 `<code>/edit &lt;id&gt;</code> - Edit a scheduled post\n` +
                 `<code>/status</code> - View bot status and uptime\n` +
                 `<code>/delay &lt;seconds&gt;</code> - Set the post countdown delay\n` +
-                `<code>/defaultdest &lt;bsky|tumblr|tg|zip&gt;</code> - Toggle default post destinations\n` +
+                `<code>/defaultdest &lt;platform&gt;</code> - Toggle default post destinations\n` +
                 `<code>/togglelinks</code> - Toggle cross-post links in channel posts\n` +
                 `<code>/help</code> - Show this help message`;
             return ctx.reply(helpMessage, { parse_mode: 'HTML' });
@@ -282,6 +283,9 @@ export class Commands {
             if (platforms.tumblr) allowedArgs.push('tumblr');
             if (platforms.tg) allowedArgs.push('tg');
             if (platforms.zip) allowedArgs.push('zip');
+            if (platforms.discord) {
+                platforms.discord.forEach((label) => allowedArgs.push(label.toLowerCase()));
+            }
 
             const args = ctx.message.text.split(/\s+/).slice(1);
             if (
@@ -317,22 +321,37 @@ export class Commands {
 
             const target = args[0].toLowerCase();
             const dests = this.memory.defaultDestinations;
-            dests[target] = !dests[target];
-            this.memory.defaultDestinations = dests;
 
-            const targetName =
-                target === 'bsky'
-                    ? 'Bluesky'
-                    : target === 'tumblr'
-                      ? 'Tumblr'
-                      : target === 'zip'
-                      ? 'Zip'
-                      : 'Telegram';
-            return ctx
-                .reply(
-                    `✅ Default destination for ${targetName} is now ${dests[target] ? 'enabled' : 'disabled'}.`,
-                )
-                .catch(console.error);
+            if (['bsky', 'tumblr', 'tg', 'zip'].includes(target)) {
+                dests[target] = !dests[target];
+                this.memory.defaultDestinations = dests;
+
+                const targetName =
+                    target === 'bsky' ? 'Bluesky' : target === 'tumblr' ? 'Tumblr' : target === 'zip' ? 'Zip' : 'Telegram';
+                return ctx
+                    .reply(
+                        `✅ Default destination for ${targetName} is now ${dests[target] ? 'enabled' : 'disabled'}.`,
+                    )
+                    .catch(console.error);
+            } else {
+                const labelMatch = platforms.discord?.find(
+                    (l) => l.toLowerCase() === target,
+                );
+                if (labelMatch) {
+                    if (!dests.discord) dests.discord = [];
+                    if (dests.discord.includes(labelMatch)) {
+                        dests.discord = dests.discord.filter((l) => l !== labelMatch);
+                    } else {
+                        dests.discord.push(labelMatch);
+                    }
+                    this.memory.defaultDestinations = dests;
+                    return ctx
+                        .reply(
+                            `✅ Default destination for Discord: ${labelMatch} is now ${dests.discord.includes(labelMatch) ? 'enabled' : 'disabled'}.`,
+                        )
+                        .catch(console.error);
+                }
+            }
         });
         return this;
     }
@@ -565,6 +584,7 @@ export class Commands {
                     dests.tumblr && 'Tumblr',
                     dests.tg && 'Telegram',
                     dests.zip && 'Zip',
+                    ...(dests.discord || []).map((label) => `Discord: ${label}`),
                 ]
                     .filter(Boolean)
                     .join(', ') || 'None';
@@ -575,6 +595,7 @@ export class Commands {
                 platforms.tumblr && 'Tumblr',
                 platforms.tg && 'Telegram',
                 platforms.zip && 'Zip',
+                ...(platforms.discord || []).map((label) => `Discord: ${label}`),
             ].filter(Boolean).join(', ') || 'None';
 
             const version = getVersion();
@@ -685,6 +706,7 @@ export class Commands {
                     dests.tumblr && 'Tumblr',
                     dests.tg && 'Telegram',
                     dests.zip && 'Zip',
+                    ...(dests.discord || []).map((label) => `Discord: ${label}`),
                 ]
                     .filter(Boolean)
                     .join(', ') || 'None';
@@ -695,6 +717,7 @@ export class Commands {
                 platforms.tumblr && 'Tumblr',
                 platforms.tg && 'Telegram',
                 platforms.zip && 'Zip',
+                ...(platforms.discord || []).map((label) => `Discord: ${label}`),
             ].filter(Boolean).join(', ') || 'None';
 
             const botName = process.env.BOT_NAME || 'PostBot';

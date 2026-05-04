@@ -432,6 +432,52 @@ async function main() {
         }
     }
 
+    console.log(`\n${c.cyan}--- Discord ---${c.reset}`);
+    console.log(`${c.cyan}You can configure multiple Discord webhooks. Format: Label:URL, Label:URL${c.reset}`);
+    env.DISCORD_WEBHOOKS = await ask(
+        'Enter your Discord Webhook(s) (Optional)',
+        existingEnv.DISCORD_WEBHOOKS || existingEnv.DISCORD_WEBHOOK_URL,
+    );
+    if (env.DISCORD_WEBHOOKS) {
+        const webhooks = env.DISCORD_WEBHOOKS.split(',').map((w) => w.trim()).filter(Boolean);
+        for (const hook of webhooks) {
+            const parts = hook.split(':');
+            if (parts.length < 2) {
+                console.log(`${c.yellow}⚠️ Invalid format for '${hook}'. Expected 'Label:URL'.${c.reset}`);
+                continue;
+            }
+            
+            const label = parts[0].trim();
+            const url = parts.slice(1).join(':').trim(); // Ensure the "https://" part stays intact
+            
+            console.log(`${c.cyan}⏳ Verifying Discord Webhook '${label}'...${c.reset}`);
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (response.ok && data.id && data.token) {
+                    console.log(`${c.green}✅ Discord Webhook '${label}' verified! Connected to channel: ${c.reset}${data.channel_id || 'Unknown'}`);
+                } else {
+                    console.log(
+                        `${c.yellow}⚠️ Invalid Discord Webhook '${label}': ${c.reset}${data.message || 'Unknown error'}\n${c.yellow}It will be saved, but please double check it.${c.reset}`,
+                    );
+                }
+            } catch (err) {
+                console.log(
+                    `${c.yellow}⚠️ Invalid Discord Webhook '${label}': ${c.reset}${err.message}\n${c.yellow}It will be saved, but please double check it.${c.reset}`,
+                );
+            }
+        }
+
+        env.DISCORD_USERNAME = await ask(
+            'Enter custom Discord bot username (Optional)',
+            existingEnv.DISCORD_USERNAME,
+        );
+        env.DISCORD_AVATAR_URL = await ask(
+            'Enter custom Discord bot avatar URL (Optional)',
+            existingEnv.DISCORD_AVATAR_URL,
+        );
+    }
+
     rl.close();
 
     console.log(`\n${c.cyan}Generating .env file...${c.reset}`);
@@ -472,6 +518,23 @@ async function main() {
         envContent += `#TUMBLR_CONSUMER_SECRET=\n`;
         envContent += `#TUMBLR_TOKEN=\n`;
         envContent += `#TUMBLR_TOKEN_SECRET=\n`;
+    }
+
+    envContent += `# Discord API Credentials\n`;
+    if (env.DISCORD_WEBHOOKS) {
+        envContent += `DISCORD_WEBHOOKS="${env.DISCORD_WEBHOOKS}"\n`;
+        if (env.DISCORD_USERNAME) {
+            envContent += `DISCORD_USERNAME=${env.DISCORD_USERNAME}\n`;
+        } else {
+            envContent += `#DISCORD_USERNAME=\n`;
+        }
+        if (env.DISCORD_AVATAR_URL) {
+            envContent += `DISCORD_AVATAR_URL=${env.DISCORD_AVATAR_URL}\n\n`;
+        } else {
+            envContent += `#DISCORD_AVATAR_URL=\n\n`;
+        }
+    } else {
+        envContent += `#DISCORD_WEBHOOKS=\n\n`;
     }
 
     fs.writeFileSync(envPath, envContent.trim() + '\n');

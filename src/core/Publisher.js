@@ -7,14 +7,24 @@ export class Publisher {
      * @param {object} tumblrPost The Tumblr publisher instance.
      * @param {object} channelPost The Telegram publisher instance.
      * @param {object} zipPost The Zip archive publisher instance.
+     * @param {object} discordPost The Discord publisher instance.
      * @param {object} memory The Memory storage instance.
      */
-    constructor(bot, blueskyPost, tumblrPost, channelPost, zipPost, memory) {
+    constructor(
+        bot,
+        blueskyPost,
+        tumblrPost,
+        channelPost,
+        zipPost,
+        discordPost,
+        memory,
+    ) {
         this.bot = bot;
         this.blueskyPost = blueskyPost;
         this.tumblrPost = tumblrPost;
         this.channelPost = channelPost;
         this.zipPost = zipPost;
+        this.discordPost = discordPost;
         this.memory = memory;
     }
 
@@ -89,6 +99,7 @@ export class Publisher {
         let tumblrSuccess = false;
         let tgSuccess = false;
         let zipSuccess = false;
+        let discordSuccesses = [];
         let bskyLink;
         let tumblrLink;
         let tgLink;
@@ -170,6 +181,37 @@ export class Publisher {
             }
         }
 
+        if (
+            postDestinations.discord &&
+            Array.isArray(postDestinations.discord)
+        ) {
+            const crossPostLinks = [];
+            if (bskySuccess && bskyLink) crossPostLinks.push(bskyLink);
+            if (tumblrSuccess && tumblrLink) crossPostLinks.push(tumblrLink);
+            if (tgSuccess && tgLink) crossPostLinks.push(tgLink);
+
+            for (const label of postDestinations.discord) {
+                if (platforms.discord && platforms.discord.includes(label)) {
+                    try {
+                        const result = await this.discordPost.post(
+                            { messageText, downloadedMedia, tags },
+                            label,
+                            crossPostLinks,
+                            this.memory.showCrossPostLinks,
+                        );
+                        if (result)
+                            discordSuccesses.push({ label, link: result });
+                    } catch (error) {
+                        console.error(
+                            `[ERROR] Failed to cross-post to Discord '${label}':`,
+                            error,
+                        );
+                        errors.push(`Discord (${label}): ${error.message}`);
+                    }
+                }
+            }
+        }
+
         if (postDestinations.zip && platforms.zip) {
             try {
                 const result = await this.zipPost.post(
@@ -205,6 +247,10 @@ export class Publisher {
         }
         if (tgSuccess) successMessages.push(`✅ ${tgLink.link}`);
         if (zipSuccess) successMessages.push(`✅ Zip: ${zipLink.link}`);
+        for (const d of discordSuccesses) {
+            if (d.link)
+                successMessages.push(`✅ Discord (${d.label}): ${d.link.link}`);
+        }
 
         if (successMessages.length > 0) {
             finalStatus += `🎉 Cross-posting complete!\n\n${successMessages.join('\n')}`;

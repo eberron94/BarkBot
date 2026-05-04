@@ -151,9 +151,7 @@ export class Messages {
         postData.post.text = messageText;
         postData.post.media = media;
         postData.post.tags = tags;
-        postData.post.destinations = postData.post.destinations || {
-            ...this.memory.defaultDestinations,
-        };
+        postData.post.destinations = postData.post.destinations || JSON.parse(JSON.stringify(this.memory.defaultDestinations));
         postData.post.sourceChatId =
             postData.post.sourceChatId || messages[0]?.chat?.id;
         postData.post.sourceMessageId =

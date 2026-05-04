@@ -50,8 +50,14 @@ export class Actions {
         this.bot.action(/^toggle_(bsky|tumblr|tg|zip)$/, (ctx) =>
             this.#handleToggleDestination(ctx),
         );
+        this.bot.action(/^toggle_discord_(.+)$/, (ctx) =>
+            this.#handleToggleDiscordDestination(ctx),
+        );
         this.bot.action(/^toggle_default_(bsky|tumblr|tg|zip)$/, (ctx) =>
             this.#handleToggleDefaultDestination(ctx),
+        );
+        this.bot.action(/^toggle_default_discord_(.+)$/, (ctx) =>
+            this.#handleToggleDefaultDiscordDestination(ctx),
         );
         this.bot.action(
             /^(post_selected|post_cancel|post_edit|post_tags|post_save_queue|post_save_draft|post_clear_schedule)$/,
@@ -112,7 +118,7 @@ export class Actions {
 
         // Initialize destinations if they don't exist
         if (!postData.post.destinations) {
-            postData.post.destinations = { ...this.memory.defaultDestinations };
+            postData.post.destinations = JSON.parse(JSON.stringify(this.memory.defaultDestinations));
         }
 
         // Toggle the specific destination
@@ -126,6 +132,40 @@ export class Actions {
         this.memory.pendingPosts.set(ctx.from.id, postData);
 
         // Redraw the preview with the updated state
+        await this.messages.sendPreview(ctx, ctx.from.id);
+        return ctx.answerCbQuery();
+    }
+
+    async #handleToggleDiscordDestination(ctx) {
+        const label = ctx.match[1];
+        if (!isAuthorized(ctx)) {
+            return ctx.answerCbQuery('⛔ Unauthorized.', { show_alert: true });
+        }
+
+        const postData = this.memory.pendingPosts.get(ctx.from.id);
+        if (!postData) {
+            await ctx.editMessageText('⚠️ No pending post found.');
+            return ctx.answerCbQuery();
+        }
+
+        const platforms = getConfiguredPlatforms();
+        if (!platforms.discord || !platforms.discord.includes(label)) {
+            return ctx.answerCbQuery(`⚠️ Discord webhook '${label}' is not configured.`, { show_alert: true });
+        }
+
+        if (!postData.post.destinations) {
+            postData.post.destinations = JSON.parse(JSON.stringify(this.memory.defaultDestinations));
+        }
+        if (!postData.post.destinations.discord) {
+            postData.post.destinations.discord = [];
+        }
+
+        if (postData.post.destinations.discord.includes(label)) {
+            postData.post.destinations.discord = postData.post.destinations.discord.filter((l) => l !== label);
+        } else {
+            postData.post.destinations.discord.push(label);
+        }
+        this.memory.pendingPosts.set(ctx.from.id, postData);
         await this.messages.sendPreview(ctx, ctx.from.id);
         return ctx.answerCbQuery();
     }
@@ -156,6 +196,36 @@ export class Actions {
                     parse_mode: 'HTML',
                     ...UI.defaultDestinations(dests),
                 },
+            )
+            .catch(() => {});
+        return ctx.answerCbQuery();
+    }
+
+    async #handleToggleDefaultDiscordDestination(ctx) {
+        const label = ctx.match[1];
+        if (!isAuthorized(ctx)) {
+            return ctx.answerCbQuery('⛔ Unauthorized.', { show_alert: true });
+        }
+
+        const platforms = getConfiguredPlatforms();
+        if (!platforms.discord || !platforms.discord.includes(label)) {
+            return ctx.answerCbQuery(`⚠️ Discord webhook '${label}' is not configured.`, { show_alert: true });
+        }
+
+        const dests = this.memory.defaultDestinations;
+        if (!dests.discord) dests.discord = [];
+
+        if (dests.discord.includes(label)) {
+            dests.discord = dests.discord.filter((l) => l !== label);
+        } else {
+            dests.discord.push(label);
+        }
+        this.memory.defaultDestinations = dests;
+
+        await ctx
+            .editMessageText(
+                '⚙️ <b>Default Post Destinations:</b>\nToggle which platforms are selected by default for new posts.',
+                { parse_mode: 'HTML', ...UI.defaultDestinations(dests) },
             )
             .catch(() => {});
         return ctx.answerCbQuery();
@@ -531,7 +601,7 @@ export class Actions {
         const destinations = postData.post.destinations || {};
         const platforms = getConfiguredPlatforms();
         const enabledDestinations = Object.entries(destinations)
-            .filter(([key, enabled]) => enabled && platforms[key])
+            .filter(([key, enabled]) => key !== 'discord' && enabled && platforms[key])
             .map(([key]) => {
                 if (key === 'bsky') return 'Bluesky';
                 if (key === 'tumblr') return 'Tumblr';
@@ -540,6 +610,14 @@ export class Actions {
                 return '';
             })
             .filter(Boolean);
+
+        if (destinations.discord && Array.isArray(destinations.discord)) {
+            destinations.discord.forEach((label) => {
+                if (platforms.discord && platforms.discord.includes(label)) {
+                    enabledDestinations.push(`Discord: ${label}`);
+                }
+            });
+        }
 
         let destinationText;
         if (enabledDestinations.length === 0) {

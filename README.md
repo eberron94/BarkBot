@@ -2,13 +2,13 @@
 
 A Telegram bot designed to help you easily draft, schedule, and cross-post your content to multiple social media platforms simultaneously right from your Telegram app.
 
-Currently supports cross-posting to **Telegram Channels**, **Bluesky**, and **Tumblr**, as well as generating downloadable **`.zip` archives** containing your media and text for manual posting to platforms without accessible APIs (like TikTok or Instagram Reels).
+Currently supports cross-posting to **Telegram Channels**, **Bluesky**, **Tumblr**, and **Discord**, as well as generating downloadable **`.zip` archives** containing your media and text for manual posting to platforms without accessible APIs (like TikTok or Instagram Reels).
 
 ---
 
 ## ✨ Features
 
-- **Multi-Platform Posting:** Write once, post to Telegram, Bluesky, and Tumblr simultaneously.
+- **Multi-Platform Posting:** Write once, post to Telegram, Bluesky, Tumblr, and Discord simultaneously.
 - **Media Support:** Seamlessly handles photos, videos, and multi-image albums.
 - **Accessibility First:** Easily add custom `alt text` to your images before sending.
 - **Tag Presets:** Save groups of hashtags and apply them with a single click.
@@ -70,6 +70,20 @@ To post to Tumblr, you need to register an application to get OAuth credentials.
 3. Use the console to generate an `OAuth Token` and `OAuth Token Secret`.
 
 - `TUMBLR_BLOG_NAME`: Your full blog URL (e.g., `myblog.tumblr.com`).
+
+#### Discord (Optional)
+
+To post to Discord, you can configure one or more Webhooks.
+
+1. Go to your Discord Server Settings -> Integrations -> Webhooks.
+2. Click **New Webhook**, name it, and choose the channel you want it to post in.
+3. Click **Copy Webhook URL**.
+4. Repeat for any other channels you want.
+
+- `DISCORD_WEBHOOKS`: A comma-separated list of labels and webhook URLs, separated by a colon (`:`). For example:
+  `DISCORD_WEBHOOKS="General:https://discord.com/api/webhooks/...,Art:https://discord.com/api/webhooks/..."`
+- `DISCORD_USERNAME`: (Optional) Overrides the webhook's default username.
+- `DISCORD_AVATAR_URL`: (Optional) Overrides the webhook's default avatar with a URL to an image.
 
 ### 4. Verify Connections
 
@@ -190,3 +204,28 @@ If you ever need to migrate your bot to a new server or restore a backup, simply
 ## 🛡️ Privacy & Security
 
 This bot is designed to be a personal tool. It will aggressively reject messages and commands from any Telegram User ID not explicitly listed in the `ALLOWED_USER_IDS` environment variable, preventing unauthorized users from accessing your social media accounts.
+
+---
+
+# 📝 Changelog
+
+## v1.1.0 - Discord Integration
+
+### ✨ New Features
+* **Discord Webhook Integration:** 
+  * You can now seamlessly cross-post content directly to Discord using Webhooks.
+  * **Full Media & Accessibility Support:** Discord posts natively support multiple images and videos. Custom Alt-Text descriptions are automatically mapped to Discord's image embeds for screen readers.
+  * **Multi-Channel Support:** Configure as many Discord channels as you want by providing a comma-separated list of `Label:URL` pairs in your `.env` file (e.g., `General:https://...`).
+  * **Custom Identities:** Optionally override the Webhook's profile picture (`DISCORD_AVATAR_URL`) and bot name (`DISCORD_USERNAME`) dynamically so your posts look like they are coming from a custom bot rather than the default webhook.
+* **Dynamic UI Generation:** 
+  * The bot's UI dynamically reads your configured Discord webhooks to construct destination toggle buttons on the fly in both the Post Preview menu and the `/defaultdest` control panel.
+
+### 🛠️ Refactors & Improvements
+* **Warning System Refactor (`Post.js`):** Extracted the platform limitation warning logic into a scalable `#generateWarnings` method. 
+  * **Discord Limitations:** The bot will now actively warn you during the drafting phase if your post exceeds Discord's 2,000 character limit or its hard cap of 10 media attachments per post.
+* **Publisher Orchestration:** Wired the new `DiscordPost` class into the main `Publisher` loop, executing it alongside Bluesky, Tumblr, and Telegram, and appending cross-post links directly into the Discord chat.
+* **Diagnostic Tooling:** Upgraded `scripts/setup.js` and `scripts/check-connections.js` to actively ping the Discord API to verify your webhook URLs are valid and fetch the target channel IDs.
+
+### 📖 Documentation Updates
+* **Discord Setup:** Added step-by-step instructions to the `README.md` on how to generate Webhook URLs in Discord and format the new `.env` variables to support multiple channels.
+* **Dependencies:** Added `discord.js` to `package.json` dependencies.

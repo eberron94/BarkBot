@@ -11,6 +11,15 @@ export class UI {
         if (platforms.tg) buttons.push(Markup.button.callback(`${dests.tg ? '✅' : '❌'} Telegram`, 'toggle_default_tg'));
         if (platforms.zip) buttons.push(Markup.button.callback(`${dests.zip ? '✅' : '❌'} Zip`, 'toggle_default_zip'));
 
+        if (platforms.discord && platforms.discord.length > 0) {
+            platforms.discord.forEach((label) => {
+                const isEnabled = dests.discord && dests.discord.includes(label);
+                buttons.push(
+                    Markup.button.callback(`${isEnabled ? '✅' : '❌'} Discord: ${label}`, `toggle_default_discord_${label}`)
+                );
+            });
+        }
+
         const rows = [];
         for (let i = 0; i < buttons.length; i += 2) {
             rows.push(buttons.slice(i, i + 2));
@@ -120,6 +129,15 @@ export class UI {
         if (platforms.tumblr) destinationButtons.push(Markup.button.callback(`${dest.tumblr ? '✅' : '❌'} Tumblr`, 'toggle_tumblr'));
         if (platforms.tg) destinationButtons.push(Markup.button.callback(`${dest.tg ? '✅' : '❌'} Telegram`, 'toggle_tg'));
         if (platforms.zip) destinationButtons.push(Markup.button.callback(`${dest.zip ? '✅' : '❌'} Zip`, 'toggle_zip'));
+
+        if (platforms.discord && platforms.discord.length > 0) {
+            platforms.discord.forEach((label) => {
+                const isEnabled = dest.discord && dest.discord.includes(label);
+                destinationButtons.push(
+                    Markup.button.callback(`${isEnabled ? '✅' : '❌'} Discord: ${label}`, `toggle_discord_${label}`)
+                );
+            });
+        }
 
         const destRows = [];
         for (let i = 0; i < destinationButtons.length; i += 2) {

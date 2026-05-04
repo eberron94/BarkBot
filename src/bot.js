@@ -10,6 +10,7 @@ import { ChannelPost } from './posts/ChannelPost.js';
 import { Scheduler } from './core/Scheduler.js';
 import { ZipPost } from './posts/ZipPost.js';
 import { Publisher } from './core/Publisher.js';
+import { DiscordPost } from './posts/DiscordPost.js';
 import { getVersion } from './util/util.js';
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
@@ -34,6 +35,8 @@ const tgChannelPost = new ChannelPost(
 
 const zipPost = new ZipPost(bot.telegram);
 
+const discordPost = new DiscordPost(process.env.DISCORD_WEBHOOKS);
+
 // Instantiate managers
 const memory = new Memory();
 
@@ -47,6 +50,7 @@ const publisher = new Publisher(
     tumblrPost,
     tgChannelPost,
     zipPost,
+    discordPost,
     memory,
 );
 
