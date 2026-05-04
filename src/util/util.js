@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 export const escapeHtml = (str) =>
     str
         ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
