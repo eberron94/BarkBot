@@ -9,7 +9,8 @@
         "start": "node src/bot.js",
         "setup": "node scripts/setup.js",
         "check": "node scripts/check-connections.js",
-        "setup:pm2": "node scripts/setup-pm2.js"
+        "setup:pm2": "node scripts/setup-pm2.js",
+        "zip:tumblr": "node scripts/tumblr-to-zip.js"
     },
     "dependencies": {
         "@atproto/api": "latest",
