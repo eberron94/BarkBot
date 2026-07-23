@@ -1,0 +1,21 @@
+# Ignore node_modules, it will be installed inside the container
+node_modules
+
+# Ignore local environment files, they are injected by docker-compose
+.env
+.env.example
+
+# Ignore git and docker files
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+
+# Ignore local data, it's mounted as a volume
+data/
+
+# Ignore development/debug logs
+npm-debug.log*
+
+# Ignore the output directory for the tumblr-to-zip script
+output/
