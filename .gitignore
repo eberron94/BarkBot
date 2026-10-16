@@ -136,3 +136,4 @@ dist
 
 # PM2 configuration
 ecosystem.config.cjs
+/output
