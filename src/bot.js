@@ -10,6 +10,7 @@ import { ChannelPost } from './posts/ChannelPost.js';
 import { Scheduler } from './core/Scheduler.js';
 import { ZipPost } from './posts/ZipPost.js';
 import { Publisher } from './core/Publisher.js';
+import { DiscordPost } from './posts/DiscordPost.js';
 import { getVersion } from './util/util.js';
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
@@ -24,6 +25,7 @@ const tumblrPost = new TumblrPost({
     consumer_secret: process.env.TUMBLR_CONSUMER_SECRET,
     token: process.env.TUMBLR_TOKEN,
     token_secret: process.env.TUMBLR_TOKEN_SECRET,
+    blogName: process.env.TUMBLR_BLOG_NAME,
 });
 
 // Store pending posts temporarily in memory. Maps Telegram User IDs to their current draft.
@@ -33,6 +35,8 @@ const tgChannelPost = new ChannelPost(
 );
 
 const zipPost = new ZipPost(bot.telegram);
+
+const discordPost = new DiscordPost(process.env.DISCORD_WEBHOOKS);
 
 // Instantiate managers
 const memory = new Memory();
@@ -47,6 +51,7 @@ const publisher = new Publisher(
     tumblrPost,
     tgChannelPost,
     zipPost,
+    discordPost,
     memory,
 );
 
