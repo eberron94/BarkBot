@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 export const escapeHtml = (str) =>
     str
         ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -29,17 +31,33 @@ export const parseScheduleTime = (input) => {
 };
 
 export const getConfiguredPlatforms = () => {
+    let discordWebhooks = [];
+    if (process.env.DISCORD_WEBHOOKS) {
+        discordWebhooks = process.env.DISCORD_WEBHOOKS.split(',')
+            .map((w) => w.trim())
+            .filter(Boolean)
+            .map((hook) => {
+                const parts = hook.split('|');
+                return parts.length >= 2 ? parts[0].trim() : null;
+            })
+            .filter(Boolean);
+    }
+
     return {
-        bsky: !!(process.env.BLUESKY_IDENTIFIER && process.env.BLUESKY_PASSWORD),
-        tumblr: !!(
-            process.env.TUMBLR_CONSUMER_KEY &&
-            process.env.TUMBLR_CONSUMER_SECRET &&
-            process.env.TUMBLR_TOKEN &&
-            process.env.TUMBLR_TOKEN_SECRET &&
-            process.env.TUMBLR_BLOG_NAME
+        bsky: !!(
+            process.env.BLUESKY_IDENTIFIER?.trim() &&
+            process.env.BLUESKY_PASSWORD?.trim()
         ),
-        tg: !!process.env.TELEGRAM_CHANNEL_ID,
+        tumblr: !!(
+            process.env.TUMBLR_CONSUMER_KEY?.trim() &&
+            process.env.TUMBLR_CONSUMER_SECRET?.trim() &&
+            process.env.TUMBLR_TOKEN?.trim() &&
+            process.env.TUMBLR_TOKEN_SECRET?.trim() &&
+            process.env.TUMBLR_BLOG_NAME?.trim()
+        ),
+        tg: !!process.env.TELEGRAM_CHANNEL_ID?.trim(),
         zip: true,
+        discord: discordWebhooks,
     };
 };
 

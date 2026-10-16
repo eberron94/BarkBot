@@ -1,4 +1,4 @@
-import { escapeHtml } from '../util/util.js';
+import { escapeHtml, getConfiguredPlatforms } from '../util/util.js';
 
 export class Post {
     constructor(data = {}) {
@@ -15,6 +15,54 @@ export class Post {
     }
 
     /**
+     * Generates a list of warnings based on platform limitations.
+     * @param {number} charCount The total character count of the text and tags.
+     * @param {number} photoCount The number of attached photos.
+     * @param {number} videoCount The number of attached videos.
+     * @param {number} totalMediaCount The total number of attached media items.
+     * @returns {string[]} An array of warning messages.
+     */
+    #generateWarnings(charCount, photoCount, videoCount, totalMediaCount) {
+        const warnings = [];
+        const platforms = getConfiguredPlatforms();
+
+        // Bluesky Warnings
+        if (platforms.bsky) {
+            if (charCount > 300) {
+                warnings.push(`Post exceeds Bluesky's 300 character limit.`);
+            }
+            if (videoCount > 0 && photoCount > 0) {
+                warnings.push(
+                    `Bluesky does not support mixed media. The post will not be sent to Bluesky.`,
+                );
+            } else if (videoCount > 1) {
+                warnings.push(
+                    `Bluesky only supports 1 video. Only the first will be sent.`,
+                );
+            }
+        }
+
+        // Tumblr Warnings
+        if (platforms.tumblr && videoCount > 0) {
+            warnings.push(
+                `Tumblr video posts will link to the main blog due to processing delays.`,
+            );
+        }
+
+        // Discord Warnings
+        if (platforms.discord && platforms.discord.length > 0) {
+            if (charCount > 2000)
+                warnings.push(`Post exceeds Discord's 2000 character limit.`);
+            if (totalMediaCount > 10)
+                warnings.push(
+                    `Discord only supports up to 10 media attachments per post.`,
+                );
+        }
+
+        return warnings;
+    }
+
+    /**
      * Generates a formatted preview message of the post for editing.
      * @returns {string} The formatted preview text.
      */
@@ -24,33 +72,21 @@ export class Post {
         // --- Media and Text Analysis ---
         const photoCount = media.filter((m) => m.mediaType === 'photo').length;
         const videoCount = media.filter((m) => m.mediaType === 'video').length;
-        let bskyTextPreview = messageText;
+        let textPreview = messageText;
         if (tags.length > 0) {
-            bskyTextPreview +=
-                (bskyTextPreview ? '\n\n' : '') +
+            textPreview +=
+                (textPreview ? '\n\n' : '') +
                 tags.map((t) => '#' + t).join(' ');
         }
-        const charCount = bskyTextPreview.length;
+        const charCount = textPreview.length;
 
         // --- Warning Generation ---
-        const warnings = [];
-        if (charCount > 300) {
-            warnings.push(`Post exceeds Bluesky's 300 character limit.`);
-        }
-        if (videoCount > 0 && photoCount > 0) {
-            warnings.push(
-                `Bluesky does not support mixed media. The post will not be sent to Bluesky.`,
-            );
-        } else if (videoCount > 1) {
-            warnings.push(
-                `Bluesky only supports 1 video. Only the first will be sent.`,
-            );
-        }
-        if (videoCount > 0) {
-            warnings.push(
-                `Tumblr video posts will link to the main blog due to processing delays.`,
-            );
-        }
+        const warnings = this.#generateWarnings(
+            charCount,
+            photoCount,
+            videoCount,
+            media.length,
+        );
 
         // --- Build Preview Text ---
         let previewText = `👀 <b>POST PREVIEW</b> 👀\n`;
