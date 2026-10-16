@@ -66,7 +66,13 @@ const {
     TUMBLR_BLOG_NAME,
 } = process.env;
 
-if (!TUMBLR_CONSUMER_KEY || !TUMBLR_BLOG_NAME) {
+if (
+    !TUMBLR_CONSUMER_KEY ||
+    !TUMBLR_CONSUMER_SECRET ||
+    !TUMBLR_TOKEN ||
+    !TUMBLR_TOKEN_SECRET ||
+    !TUMBLR_BLOG_NAME
+) {
     console.error(
         '⚠️ Tumblr credentials or blog name are missing in your .env file.',
     );

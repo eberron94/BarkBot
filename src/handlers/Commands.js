@@ -298,22 +298,7 @@ export class Commands {
                         '⚙️ <b>Default Post Destinations:</b>\nToggle which platforms are selected by default for new posts.',
                         {
                             parse_mode: 'HTML',
-                            ...Markup.inlineKeyboard([
-                                [
-                                    Markup.button.callback(
-                                        `${dests.bsky ? '✅' : '❌'} Bluesky`,
-                                        'toggle_default_bsky',
-                                    ),
-                                    Markup.button.callback(
-                                        `${dests.tumblr ? '✅' : '❌'} Tumblr`,
-                                        'toggle_default_tumblr',
-                                    ),
-                                    Markup.button.callback(
-                                        `${dests.zip ? '✅' : '❌'} Zip`,
-                                        'toggle_default_zip',
-                                    ),
-                                ],
-                            ]),
+                            ...UI.defaultDestinations(dests),
                         },
                     )
                     .catch(console.error);

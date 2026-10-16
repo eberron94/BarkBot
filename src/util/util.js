@@ -44,15 +44,18 @@ export const getConfiguredPlatforms = () => {
     }
 
     return {
-        bsky: !!(process.env.BLUESKY_IDENTIFIER && process.env.BLUESKY_PASSWORD),
-        tumblr: !!(
-            process.env.TUMBLR_CONSUMER_KEY &&
-            process.env.TUMBLR_CONSUMER_SECRET &&
-            process.env.TUMBLR_TOKEN &&
-            process.env.TUMBLR_TOKEN_SECRET &&
-            process.env.TUMBLR_BLOG_NAME
+        bsky: !!(
+            process.env.BLUESKY_IDENTIFIER?.trim() &&
+            process.env.BLUESKY_PASSWORD?.trim()
         ),
-        tg: !!process.env.TELEGRAM_CHANNEL_ID,
+        tumblr: !!(
+            process.env.TUMBLR_CONSUMER_KEY?.trim() &&
+            process.env.TUMBLR_CONSUMER_SECRET?.trim() &&
+            process.env.TUMBLR_TOKEN?.trim() &&
+            process.env.TUMBLR_TOKEN_SECRET?.trim() &&
+            process.env.TUMBLR_BLOG_NAME?.trim()
+        ),
+        tg: !!process.env.TELEGRAM_CHANNEL_ID?.trim(),
         zip: true,
         discord: discordWebhooks,
     };

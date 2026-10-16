@@ -25,6 +25,7 @@ const tumblrPost = new TumblrPost({
     consumer_secret: process.env.TUMBLR_CONSUMER_SECRET,
     token: process.env.TUMBLR_TOKEN,
     token_secret: process.env.TUMBLR_TOKEN_SECRET,
+    blogName: process.env.TUMBLR_BLOG_NAME,
 });
 
 // Store pending posts temporarily in memory. Maps Telegram User IDs to their current draft.

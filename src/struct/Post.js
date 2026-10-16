@@ -1,4 +1,4 @@
-import { escapeHtml } from '../util/util.js';
+import { escapeHtml, getConfiguredPlatforms } from '../util/util.js';
 
 export class Post {
     constructor(data = {}) {
@@ -24,35 +24,40 @@ export class Post {
      */
     #generateWarnings(charCount, photoCount, videoCount, totalMediaCount) {
         const warnings = [];
+        const platforms = getConfiguredPlatforms();
 
         // Bluesky Warnings
-        if (charCount > 300) {
-            warnings.push(`Post exceeds Bluesky's 300 character limit.`);
-        }
-        if (videoCount > 0 && photoCount > 0) {
-            warnings.push(
-                `Bluesky does not support mixed media. The post will not be sent to Bluesky.`,
-            );
-        } else if (videoCount > 1) {
-            warnings.push(
-                `Bluesky only supports 1 video. Only the first will be sent.`,
-            );
+        if (platforms.bsky) {
+            if (charCount > 300) {
+                warnings.push(`Post exceeds Bluesky's 300 character limit.`);
+            }
+            if (videoCount > 0 && photoCount > 0) {
+                warnings.push(
+                    `Bluesky does not support mixed media. The post will not be sent to Bluesky.`,
+                );
+            } else if (videoCount > 1) {
+                warnings.push(
+                    `Bluesky only supports 1 video. Only the first will be sent.`,
+                );
+            }
         }
 
         // Tumblr Warnings
-        if (videoCount > 0) {
+        if (platforms.tumblr && videoCount > 0) {
             warnings.push(
                 `Tumblr video posts will link to the main blog due to processing delays.`,
             );
         }
 
         // Discord Warnings
-        if (charCount > 2000)
-            warnings.push(`Post exceeds Discord's 2000 character limit.`);
-        if (totalMediaCount > 10)
-            warnings.push(
-                `Discord only supports up to 10 media attachments per post.`,
-            );
+        if (platforms.discord && platforms.discord.length > 0) {
+            if (charCount > 2000)
+                warnings.push(`Post exceeds Discord's 2000 character limit.`);
+            if (totalMediaCount > 10)
+                warnings.push(
+                    `Discord only supports up to 10 media attachments per post.`,
+                );
+        }
 
         return warnings;
     }

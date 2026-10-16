@@ -5,12 +5,75 @@ import os from 'node:os';
 import { SocialLink } from '../struct/SocialLink.js';
 
 export class TumblrPost {
-    constructor(credentials) {
-        this.client = tumblr.createClient(credentials);
-        this.blogName = process.env.TUMBLR_BLOG_NAME;
+    constructor(credentials = {}) {
+        const rawBlogName =
+            credentials?.blogName ||
+            credentials?.blog_name ||
+            process.env.TUMBLR_BLOG_NAME;
+        this.blogName =
+            typeof rawBlogName === 'string'
+                ? rawBlogName
+                      .trim()
+                      .replace(/^https?:\/\//i, '')
+                      .replace(/\/+$/, '') || null
+                : null;
+
+        const rawConsumerKey =
+            credentials?.consumer_key ?? process.env.TUMBLR_CONSUMER_KEY;
+        const rawConsumerSecret =
+            credentials?.consumer_secret ?? process.env.TUMBLR_CONSUMER_SECRET;
+        const rawToken = credentials?.token ?? process.env.TUMBLR_TOKEN;
+        const rawTokenSecret =
+            credentials?.token_secret ?? process.env.TUMBLR_TOKEN_SECRET;
+
+        const consumerKey =
+            typeof rawConsumerKey === 'string' ? rawConsumerKey.trim() : '';
+        const consumerSecret =
+            typeof rawConsumerSecret === 'string'
+                ? rawConsumerSecret.trim()
+                : '';
+        const token = typeof rawToken === 'string' ? rawToken.trim() : '';
+        const tokenSecret =
+            typeof rawTokenSecret === 'string' ? rawTokenSecret.trim() : '';
+
+        const isFullyConfigured = Boolean(
+            consumerKey &&
+                consumerSecret &&
+                token &&
+                tokenSecret &&
+                this.blogName,
+        );
+
+        this.client = null;
+
+        if (isFullyConfigured) {
+            try {
+                this.client = tumblr.createClient({
+                    consumer_key: consumerKey,
+                    consumer_secret: consumerSecret,
+                    token: token,
+                    token_secret: tokenSecret,
+                });
+            } catch (error) {
+                console.warn(
+                    `[TUMBLR] Failed to initialize Tumblr client: ${error.message}`,
+                );
+                this.client = null;
+            }
+        }
+    }
+
+    get isConfigured() {
+        return Boolean(this.client && this.blogName);
     }
 
     async post(postData) {
+        if (!this.isConfigured) {
+            throw new Error(
+                'Tumblr is not configured. Please check your Tumblr environment variables.',
+            );
+        }
+
         const { messageText, downloadedMedia, tags } = postData;
         const tempFiles = [];
 
